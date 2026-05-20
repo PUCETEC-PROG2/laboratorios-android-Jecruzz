@@ -5,5 +5,5 @@ import retrofit2.http.GET
 
 interface ApiService {
     @GET(value = "/user/repos")
-    suspend fun getRepositories () : List<Repository>
+    suspend fun getRepositories () : List<Repository >
 }
