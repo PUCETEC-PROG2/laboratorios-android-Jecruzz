@@ -53,8 +53,8 @@ fun RepoList(
         if (!isLoading && errorMsg.isNullOrBlank()) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 // Optimizado: Pasamos la lista directamente en lugar de usar un índice (count)
-                items(repos) { repo ->
-                    RepoItem(repository = repo)
+                items(repos.size) { i ->
+                    RepoItem(repository = repos[i])
                 }
             }
         }
