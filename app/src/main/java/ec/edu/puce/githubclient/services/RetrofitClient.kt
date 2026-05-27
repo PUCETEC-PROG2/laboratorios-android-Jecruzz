@@ -8,7 +8,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    // CORREGIDO: Faltaban los ":" en el https://
     private const val BASE_URL = "https://api.github.com/"
 
     private val loggin = HttpLoggingInterceptor().apply {
@@ -22,8 +21,11 @@ object RetrofitClient {
             println("Token: $token")
 
             val request = chain.request().newBuilder()
-                // CORREGIDO: Se escribe "Authorization" (con h)
-                .addHeader(name = "Authorization", value = "Bearer $token")
+                .addHeader("Authorization", "Bearer $token" )
+                .addHeader("Cache-Control", "no-cache, no-store, must-revalidate")
+                .addHeader("Pragma", "no-cache")
+                .addHeader("Expires", "0")
+                .addHeader("Connection", "close")
                 .build()
 
             chain.proceed(request)
@@ -31,7 +33,6 @@ object RetrofitClient {
         .build()
 
     val apiService: ApiService by lazy {
-        // Ahora Retrofit y GsonConverterFactory ya no saldrán en rojo
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(httpClient)
