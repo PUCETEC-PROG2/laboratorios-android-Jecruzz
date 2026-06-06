@@ -2,14 +2,10 @@ package ec.edu.puce.githubclient.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-
-val PuceBlue = Color(color = 0xFF2196F3)
-val PuceTeal = Color(color = 0xFF99C1EF)
+val VibrantBlue = Color(0xFF007BFF)
+val VibrantCyan = Color(0xFF00E5FF)
+val VibrantOrange = Color(0xFFFF5722)
+val DarkGrey = Color(0xFF121212)
+val LightSurface = Color(0xFFF5F5F5)
+val SuccessGreen = Color(0xFF4CAF50)
+val ErrorRed = Color(0xFFF44336)

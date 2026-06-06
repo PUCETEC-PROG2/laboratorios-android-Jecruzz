@@ -31,7 +31,26 @@ class RepoListViewModel : ViewModel() {
             try {
                 _repos.value = RetrofitClient.apiService.getRepositories()
             } catch (e: Exception) {
-                _errorMsg.value = "Error al cargar repositorio: ${e.localizedMessage}"
+                _errorMsg.value = "Error al cargar repositorios: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteRepo(owner: String, repo: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMsg.value = null
+            try {
+                val response = RetrofitClient.apiService.deleteRepository(owner, repo)
+                if (response.isSuccessful) {
+                    fetchRepos()
+                } else {
+                    _errorMsg.value = "Error al eliminar: ${response.code()} ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _errorMsg.value = "Error al eliminar repositorio: ${e.localizedMessage}"
             } finally {
                 _isLoading.value = false
             }

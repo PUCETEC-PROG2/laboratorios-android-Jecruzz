@@ -22,6 +22,8 @@ object RetrofitClient {
 
             val request = chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $token" )
+                .addHeader("Accept", "application/vnd.github+json")
+                .addHeader("X-GitHub-Api-Version", "2022-11-28")
                 .addHeader("Cache-Control", "no-cache, no-store, must-revalidate")
                 .addHeader("Pragma", "no-cache")
                 .addHeader("Expires", "0")

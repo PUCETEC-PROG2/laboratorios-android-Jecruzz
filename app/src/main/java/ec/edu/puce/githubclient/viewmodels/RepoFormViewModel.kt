@@ -29,7 +29,23 @@ class RepoFormViewModel: ViewModel() {
                 _isSuccess.value = true
 
             } catch (e: Exception){
-                _errorMsg.value = "Error al cargar repositorio: ${e.localizedMessage}"
+                _errorMsg.value = "Error al crear repositorio: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun updateRepo(owner: String, originalName: String, name: String, description: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMsg.value = null
+            try {
+                val repoBody = RepositoryPayload(name, description)
+                RetrofitClient.apiService.updateRepository(owner, originalName, repoBody)
+                _isSuccess.value = true
+            } catch (e: Exception) {
+                _errorMsg.value = "Error al actualizar repositorio: ${e.localizedMessage}"
             } finally {
                 _isLoading.value = false
             }

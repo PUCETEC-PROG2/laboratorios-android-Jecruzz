@@ -12,7 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator // Asegúrate de tener este import
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,17 +29,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment // Asegúrate de tener este import
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ec.edu.puce.githubclient.models.Repository
 import ec.edu.puce.githubclient.ui.theme.GithubClientTheme
 import ec.edu.puce.githubclient.viewmodels.RepoFormViewModel
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.filled.Edit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoForm (
+    repository: Repository? = null,
     onBackClick: () -> Unit = {},
     onSaveSuccess: () -> Unit = {},
     viewModel: RepoFormViewModel = viewModel()
@@ -48,8 +52,8 @@ fun RepoForm (
     val errorMsg by viewModel.errorMsg.collectAsState()
     val isSuccess by viewModel.isSuccess.collectAsState()
 
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(repository?.name ?: "") }
+    var description by remember { mutableStateOf(repository?.description ?: "") }
 
     LaunchedEffect(isSuccess) {
         if (isSuccess) {
@@ -61,7 +65,7 @@ fun RepoForm (
     Scaffold (
         topBar = {
             TopAppBar(
-                title = { Text(text = "Crear Repositorio") },
+                title = { Text(text = if (repository == null) "Crear Repositorio" else "Editar Repositorio") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick){
                         Icon(
@@ -73,6 +77,7 @@ fun RepoForm (
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -80,21 +85,39 @@ fun RepoForm (
         Column (
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues = innerPadding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.Center
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Top
         ){
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            Text(
+                text = if (repository == null) "Nuevo Repositorio" else "Actualizar Datos",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             } else if (!errorMsg.isNullOrBlank()) {
-                Text(
-                    text = errorMsg!!,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+                androidx.compose.material3.Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = errorMsg!!,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
             }
             OutlinedTextField(
@@ -102,7 +125,8 @@ fun RepoForm (
                 onValueChange = { name = it },
                 label = { Text("Nombre del repositorio") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -110,26 +134,42 @@ fun RepoForm (
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Descripción del repositorio") },
+                label = { Text("Descripción") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 5
+                minLines = 3,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(
                 onClick = {
-                    viewModel.createRepo(name = reponame, description = repoDescription)
+                    if (repository == null) {
+                        viewModel.createRepo(name = name, description = description)
+                    } else {
+                        viewModel.updateRepo(
+                            owner = repository.owner.login,
+                            originalName = repository.name,
+                            name = name,
+                            description = description
+                        )
+                    }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading && repoName.isNotBlank()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = !isLoading && name.isNotBlank(),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Send,
+                    imageVector = if (repository == null) Icons.Default.Send else Icons.Default.Edit,
                     contentDescription = "Guardar"
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "Guardar")
+                Text(text = if (repository == null) "CREAR REPOSITORIO" else "GUARDAR CAMBIOS", fontWeight = FontWeight.Bold)
             }
         }
     }
